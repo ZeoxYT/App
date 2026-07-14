@@ -3686,17 +3686,10 @@ export function generateRegVM(chunk: RegBytecodeChunk, options: RegVMGenOptions 
   }
 
   if (!options._noWatermark) {
-    const art = [
-      `_________ .__            .___       __________                __                 __  .__                ____   ____________  `,
-      `\\_   ___ \\|  | ___.__. __| _/____   \\______   \\_______  _____/  |_  ____   _____/  |_|__| ____   ____   \\   \\ /   /\\_____  \\ `,
-      `/    \\  \\/|  |<   |  |/ __ |/ __ \\   |     ___/\\_  __ \\/  _ \\   __\\/ __ \\_/ ___\\   __\\  |/  _ \\ /    \\   \\   Y   /  /  ____/ `,
-      `\\     \\___|  |_\\___  / /_/ \\  ___/   |    |     |  | \\(  <_> )  | \\  ___/\\  \\___|  | |  (  <_> )   |  \\   \\     /  /       \\ `,
-      ` \\______  /____/ ____\\____ |\\___  >  |____|     |__|   \\____/|__|  \\___  >\\___  >__| |__|\\____/|___|  /    \\___/   \\_______ \\`,
-      `        \\/     \\/         \\/    \\/                                     \\/     \\/                    \\/                     \\/`,
-      ``,
-      `https://clydeprotectionde.cloud | ClydeProtection Just like VMProtect, but for Lua.`,
-    ];
-    output = `--[[\n${art.join('\n')}\n]]\n` + output;
+    output = `--[[
+https://zeox.xyz
+Protected with Zeox Obfuscator.
+]]\n` + output;
   }
 
   if (level !== "debug") {
