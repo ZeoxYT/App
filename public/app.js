@@ -328,7 +328,15 @@ document.addEventListener("DOMContentLoaded", () => {
         body: JSON.stringify(payload)
       });
 
-      const result = await response.json();
+      let result;
+      const contentType = response.headers.get("content-type");
+      
+      if (contentType && contentType.includes("application/json")) {
+        result = await response.json();
+      } else {
+        const text = await response.text();
+        throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}...`);
+      }
 
       if (!response.ok) {
         throw new Error(result.error || "Obfuscation failed");
@@ -342,7 +350,10 @@ document.addEventListener("DOMContentLoaded", () => {
       updateStatus("green", "Success");
       logConsole("[SUCCESS] Obfuscation completed successfully!", "success");
       
-
+      // Deduct quota points (1 point per successful obfuscation)
+      if (window.deductQuota) {
+          window.deductQuota(1); 
+      }
 
       if (payload.options.vmType !== "none") {
         logConsole(`[VM-GENERATOR] Virtual machine generated (${payload.options.vmType.toUpperCase()} architecture, Level: ${payload.options.vmLevel.toUpperCase()}).`, "success");
