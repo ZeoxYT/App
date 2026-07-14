@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ZEOX — Luau Obfuscation Engine</title>
+  <meta name="description" content="Deep virtualization, register-based VM, and premium obfuscation for Roblox and Luau scripts.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css?v=3.0.0">
+  <script src="app.js?v=3.0.0" defer></script>
+</head>
+<body>
+
+  <!-- ===================== VERIFICATION GATE ===================== -->
+  <div class="verify-overlay" id="verify-overlay">
+    <div class="verify-card">
+      <div class="verify-logo">
+        <img src="https://cdn.discordapp.com/attachments/1525599563304534229/1526528384706941019/27_20260714125642.png?ex=6a5759d8&is=6a560858&hm=37fd53f14e4398e484ce9e71016a5f9e62105794eca296c8d802d74284afcfba&" alt="ZEOX" onerror="this.style.display='none'; document.getElementById('verify-fallback-mark').style.display='flex';">
+        <div class="logo-fallback-mark" id="verify-fallback-mark">Z</div>
+      </div>
+
+      <button class="verify-row" id="verify-btn" type="button" aria-pressed="false">
+        <span class="verify-box" id="verify-box"></span>
+        <span class="verify-copy">
+          <span class="verify-title">Verify you are human</span>
+          <span class="verify-sub" id="verify-sub">zeox.dev needs to review the security of your connection before continuing.</span>
+        </span>
+        <span class="verify-spinner hidden" id="verify-spinner"></span>
+      </button>
+
+      <div class="verify-footer">
+        <span class="verify-ray">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2 3 7v6c0 5 4 8.5 9 9 5-.5 9-4 9-9V7l-9-5Z"/><path d="m9 12 2 2 4-4"/></svg>
+          ZEOX Access Verification
+        </span>
+        <span class="verify-id">Ray ID <span id="verify-rayid">—</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="web-container" id="app-root">
+
+    <!-- ===================== APP BAR ===================== -->
+    <header class="app-bar">
+      <div class="app-bar-row">
+        <div class="brand">
+          <div class="brand-mark">
+            <img src="https://cdn.discordapp.com/attachments/1525599563304534229/1526528384706941019/27_20260714125642.png?ex=6a5759d8&is=6a560858&hm=37fd53f14e4398e484ce9e71016a5f9e62105794eca296c8d802d74284afcfba&" alt="ZEOX logo" class="brand-logo-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+            <span class="brand-logo-fallback" style="display:none;">Z</span>
+          </div>
+          <div class="brand-copy">
+            <h1 class="brand-title">ZEOX</h1>
+            <p class="brand-subtitle">Bytecode Virtualization &amp; Script Protection</p>
+          </div>
+        </div>
+        <div class="header-badges">
+          <span class="web-badge">Luau v0.723</span>
+          <span class="web-badge web-badge-solid">Register VM</span>
+        </div>
+      </div>
+
+      <div class="stat-strip">
+        <div class="stat-item" id="card-tokens">
+          <span class="stat-label">Tokens</span>
+          <span class="stat-val" id="stat-tokens">0</span>
+        </div>
+        <div class="stat-div"></div>
+        <div class="stat-item" id="card-statements">
+          <span class="stat-label">Statements</span>
+          <span class="stat-val" id="stat-statements">0</span>
+        </div>
+        <div class="stat-div"></div>
+        <div class="stat-item" id="card-functions">
+          <span class="stat-label">Functions</span>
+          <span class="stat-val" id="stat-functions">0</span>
+        </div>
+        <div class="stat-div"></div>
+        <div class="stat-item" id="card-locals">
+          <span class="stat-label">Locals</span>
+          <span class="stat-val" id="stat-locals">0</span>
+        </div>
+      </div>
+    </header>
+
+    <main class="workspace-grid">
+
+      <div class="web-panel">
+        <div class="panel-header">
+          <div class="window-dots"><span></span><span></span><span></span></div>
+          <span class="panel-title">Input · Original Source</span>
+          <label class="icon-btn" title="Upload .lua file">
+            <input type="file" id="file-input" accept=".lua,.luau,.txt" hidden>
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0-12 4 4m-4-4-4 4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            <span>Upload</span>
+          </label>
+        </div>
+        <div class="panel-body">
+          <div class="code-editor">
+            <div class="line-numbers" id="input-lines"><span>1</span></div>
+            <textarea id="input-editor" class="code-textarea" spellcheck="false" placeholder="-- Paste your raw Luau source code here...">-- ZEOX Luau Obfuscator
+-- Click "Obfuscate Script" to compile and protect this example.
+
+local message = "Hello, world!"
+print(message)
+
+local function square(n)
+    return n * n
+end
+
+print("Square of 5 is: " .. tostring(square(5)))</textarea>
+          </div>
+        </div>
+      </div>
+
+      <div class="web-panel controls-panel">
+        <div class="panel-header">
+          <div class="window-dots"><span></span><span></span><span></span></div>
+          <span class="panel-title">Config · Engine Options</span>
+        </div>
+
+        <div class="panel-scroll-container">
+          <fieldset class="web-fieldset">
+            <legend class="web-legend">Protection</legend>
+
+            <label class="toggle-wrapper">
+              <span class="option-text">
+                <span class="option-title">Rename Variables</span>
+                <span class="option-desc">Scramble scopes into minified identifiers</span>
+              </span>
+              <span class="toggle">
+                <input type="checkbox" id="opt-rename" checked>
+                <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              </span>
+            </label>
+
+            <label class="toggle-wrapper">
+              <span class="option-text">
+                <span class="option-title">Protect Roblox Globals</span>
+                <span class="option-desc">Never rename game APIs or engine indices</span>
+              </span>
+              <span class="toggle">
+                <input type="checkbox" id="opt-preserve" checked>
+                <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              </span>
+            </label>
+
+            <label class="toggle-wrapper">
+              <span class="option-text">
+                <span class="option-title">XOR Encrypt Strings</span>
+                <span class="option-desc">Convert plaintext strings into byte arrays</span>
+              </span>
+              <span class="toggle">
+                <input type="checkbox" id="opt-encode" checked>
+                <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              </span>
+            </label>
+
+            <label class="toggle-wrapper">
+              <span class="option-text">
+                <span class="option-title">Control Flow Scrambling</span>
+                <span class="option-desc">Inject opaque predicates &amp; junk branches</span>
+              </span>
+              <span class="toggle">
+                <input type="checkbox" id="opt-scramble" checked>
+                <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              </span>
+            </label>
+
+            <label class="toggle-wrapper">
+              <span class="option-text">
+                <span class="option-title">Minify Code</span>
+                <span class="option-desc">Strip comments, whitespace and newlines</span>
+              </span>
+              <span class="toggle">
+                <input type="checkbox" id="opt-oneline">
+                <span class="toggle-track"><span class="toggle-thumb"></span></span>
+              </span>
+            </label>
+          </fieldset>
+
+          <fieldset class="web-fieldset">
+            <legend class="web-legend">Virtualization</legend>
+
+            <div class="select-group">
+              <span class="select-label">VM Architecture</span>
+              <select id="opt-vm-type" hidden>
+                <option value="none">None</option>
+                <option value="register" selected>Register-Based VM</option>
+                <option value="stack">Stack-Based VM</option>
+              </select>
+              <div class="zdrop" id="zdrop-vm-type" data-target="opt-vm-type">
+                <button type="button" class="zdrop-trigger">
+                  <span class="zdrop-trigger-text">Register-Based VM</span>
+                  <svg class="zdrop-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="zdrop-menu">
+                  <button type="button" class="zdrop-option" data-value="none">
+                    <span class="zdrop-option-text"><span class="zdrop-option-main">None</span>
+                    <span class="zdrop-option-sub">Standard AST obfuscation</span></span><svg class="zdrop-option-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </button>
+                  <button type="button" class="zdrop-option is-active" data-value="register">
+                    <span class="zdrop-option-text"><span class="zdrop-option-main">Register-Based VM</span>
+                    <span class="zdrop-option-sub">Polymorphic engine</span></span><svg class="zdrop-option-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </button>
+                  <button type="button" class="zdrop-option" data-value="stack">
+                    <span class="zdrop-option-text"><span class="zdrop-option-main">Stack-Based VM</span>
+                    <span class="zdrop-option-sub">Classic architecture</span></span><svg class="zdrop-option-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div class="select-group">
+              <span class="select-label">Hardening Grade</span>
+              <select id="opt-vm-level" hidden>
+                <option value="max" selected>Max</option>
+                <option value="normal">Normal</option>
+                <option value="debug">Debug</option>
+              </select>
+              <div class="zdrop" id="zdrop-vm-level" data-target="opt-vm-level">
+                <button type="button" class="zdrop-trigger">
+                  <span class="zdrop-trigger-text">Max</span>
+                  <svg class="zdrop-chevron" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                </button>
+                <div class="zdrop-menu">
+                  <button type="button" class="zdrop-option is-active" data-value="max">
+                    <span class="zdrop-option-text"><span class="zdrop-option-main">Max</span>
+                    <span class="zdrop-option-sub">LZSS, Anti-Dump, S-Box Cipher</span></span><svg class="zdrop-option-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </button>
+                  <button type="button" class="zdrop-option" data-value="normal">
+                    <span class="zdrop-option-text"><span class="zdrop-option-main">Normal</span>
+                    <span class="zdrop-option-sub">XOR table, instruction shuffling</span></span><svg class="zdrop-option-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </button>
+                  <button type="button" class="zdrop-option" data-value="debug">
+                    <span class="zdrop-option-text"><span class="zdrop-option-main">Debug</span>
+                    <span class="zdrop-option-sub">Readable VM for stack tracing</span></span><svg class="zdrop-option-check" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+
+        <div class="button-footer">
+          <button id="btn-obfuscate" class="btn btn-solid">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" class="btn-icon"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <span class="btn-text">Obfuscate Script</span>
+            <div class="btn-loader hidden"></div>
+          </button>
+        </div>
+      </div>
+
+      <div class="web-panel">
+        <div class="panel-header">
+          <div class="window-dots"><span></span><span></span><span></span></div>
+          <span class="panel-title">Output · Protected Source</span>
+        </div>
+        <div class="panel-body">
+          <div class="code-editor">
+            <div class="line-numbers" id="output-lines"><span>1</span></div>
+            <textarea id="output-editor" class="code-textarea" readonly placeholder="-- Obfuscated output will appear here..."></textarea>
+          </div>
+        </div>
+        <div class="button-footer button-footer-split">
+          <button id="btn-copy" class="btn btn-outline" disabled>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span id="copy-text">Copy</span>
+          </button>
+          <button id="btn-download" class="btn btn-outline" disabled>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 3v12m0 0 4-4m-4 4-4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg>
+            <span>Download</span>
+          </button>
+        </div>
+      </div>
+
+    </main>
+
+    <section class="web-console">
+      <div class="console-header">
+        <div class="console-title-wrap">
+          <span class="console-indicator status-idle" id="indicator"></span>
+          <span class="console-header-title">Compiler Terminal</span>
+        </div>
+        <span id="status-title">Ready</span>
+      </div>
+      <div class="console-body" id="terminal-console">
+        <div class="console-line line-system">[SYSTEM] ZEOX Obfuscator Web-Engine initialized. Ready for script analysis.</div>
+      </div>
+    </section>
+
+  </div>
+
+</body>
+</html>
