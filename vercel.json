@@ -1,7 +1,0 @@
-{
-  "rewrites": [
-    { "source": "/raw/:fileId", "destination": "/raw.html" },
-    { "source": "/raw/:fileId/", "destination": "/raw.html" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
-  ]
-}
