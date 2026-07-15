@@ -1,7 +1,16 @@
 {
   "rewrites": [
-    { "source": "/raw/:fileId", "destination": "/raw.html" },
-    { "source": "/raw/:fileId/", "destination": "/raw.html" },
-    { "source": "/((?!api/).*)", "destination": "/index.html" }
+    {
+      "source": "/raw/:fileId",
+      "destination": "/raw.html?id=:fileId"
+    },
+    {
+      "source": "/raw/:fileId/",
+      "destination": "/raw.html?id=:fileId"
+    },
+    {
+      "source": "/((?!api/).*)",
+      "destination": "/index.html"
+    }
   ]
 }
