@@ -311,7 +311,7 @@
       if (!id) { showError("No file ID found in the URL."); return; }
 
       try {
-        const docRef = doc(db, "files", id);
+        const docRef = doc(db, "publishedFiles", id);
         const snap   = await getDoc(docRef);
 
         if (!snap.exists()) {
