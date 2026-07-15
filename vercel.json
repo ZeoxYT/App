@@ -1,0 +1,19 @@
+{
+  "outputDirectory": "public",
+  "functions": {
+    "api/obfuscate.ts": {
+      "maxDuration": 30
+    },
+    "api/validate.ts": {
+      "maxDuration": 15
+    },
+    "api/raw/[id].js": {
+      "maxDuration": 10
+    }
+  },
+  "rewrites": [
+    { "source": "/raw/:fileId",  "destination": "/raw.html" },
+    { "source": "/raw/:fileId/", "destination": "/raw.html" },
+    { "source": "/((?!api/).*)", "destination": "/index.html" }
+  ]
+}
