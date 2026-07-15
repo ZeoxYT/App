@@ -12,7 +12,7 @@ export default async function handler(req, res) {
   try {
     // Fetch from Firebase REST API (no Admin SDK needed)
     const projectId = "zeoxxyz";
-    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/files/${id}`;
+    const url = `https://firestore.googleapis.com/v1/projects/${projectId}/databases/(default)/documents/publishedFiles/${id}`;
 
     const response = await fetch(url);
 
