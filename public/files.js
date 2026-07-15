@@ -48,7 +48,7 @@ function getShareLink(fileId) {
 /** Save a file to Firestore. Returns the document ID (share ID). */
 async function saveFile({ name, content, encrypted = false, userId }) {
   const size     = new Blob([content]).size;
-  const filesCol = collection(db, "files");
+  const filesCol = collection(db, "publishedFiles");
   const newDocRef = doc(filesCol);                    // auto-generated ID
 
   await setDoc(newDocRef, {
@@ -67,7 +67,7 @@ async function saveFile({ name, content, encrypted = false, userId }) {
 /** Load all files for a given user. */
 async function loadUserFiles(userId) {
   const q = query(
-    collection(db, "files"),
+    collection(db, "publishedFiles"),
     where("userId", "==", userId),
     orderBy("uploadedAt", "desc")
   );
@@ -77,7 +77,7 @@ async function loadUserFiles(userId) {
 
 /** Delete a file by Firestore document ID. */
 async function deleteFile(fileId) {
-  await deleteDoc(doc(db, "files", fileId));
+  await deleteDoc(doc(db, "publishedFiles", fileId));
 }
 
 // ─── UI Rendering ────────────────────────────────────────────────────────────
