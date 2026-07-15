@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ZEOX - Raw Content</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: #0f172a;
+            color: #f8fafc;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+            padding: 0;
+            margin: 0;
+        }
+        .top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 20px;
+            background: #1e293b;
+            border-bottom: 1px solid #334155;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+        .top-bar-brand {
+            font-weight: 700;
+            font-size: 15px;
+            color: #38bdf8;
+            letter-spacing: -0.5px;
+        }
+        .top-bar-meta {
+            font-size: 11px;
+            color: #64748b;
+        }
+        .copy-btn {
+            background: #1d4ed8;
+            color: #fff;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 7px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: background 0.15s;
+        }
+        .copy-btn:hover { background: #2563eb; }
+        .copy-btn.copied { background: #16a34a; }
+        #content {
+            white-space: pre-wrap;
+            word-break: break-all;
+            padding: 24px 20px;
+            min-height: calc(100vh - 50px);
+        }
+        .loading { color: #64748b; font-style: italic; }
+        .error { color: #f87171; }
+        .line-nums-wrap {
+            display: flex;
+        }
+        .line-nums {
+            user-select: none;
+            text-align: right;
+            padding-right: 16px;
+            color: #475569;
+            min-width: 40px;
+        }
+        .code-body {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="top-bar">
+        <div class="top-bar-brand">ZEOX</div>
+        <div class="top-bar-meta" id="file-meta">Loading...</div>
+        <button class="copy-btn" id="copy-btn" style="display:none;" onclick="copyContent()">Copy</button>
+    </div>
+    <div id="content" class="loading">Loading raw content…</div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-app.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCg41nrI9GosXvb_5vuOixSDpbzeYuct20",
+            authDomain: "zeoxxyz.firebaseapp.com",
+            databaseURL: "https://zeoxxyz-default-rtdb.firebaseio.com",
+            projectId: "zeoxxyz",
+            storageBucket: "zeoxxyz.firebasestorage.app",
+            messagingSenderId: "896346061745",
+            appId: "1:896346061745:web:d1fde2af1ee3eef26ddb90",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+
+        // XOR key must match the one used when encrypting (0x5A = 'Z')
+        const XOR_KEY = 0x5A;
+
+        function xorDecrypt(bytes) {
+            return bytes.map(b => b ^ XOR_KEY);
+        }
+
+        function base64ToBytes(b64) {
+            const binStr = atob(b64);
+            const bytes = new Uint8Array(binStr.length);
+            for (let i = 0; i < binStr.length; i++) {
+                bytes[i] = binStr.charCodeAt(i);
+            }
+            return bytes;
+        }
+
+        // Extract fileId from URL path: /raw/<fileId>
+        const pathParts = window.location.pathname.replace(/\/$/, '').split('/').filter(Boolean);
+        const fileId = pathParts[pathParts.length - 1];
+
+        const contentEl = document.getElementById('content');
+        const fileMeta  = document.getElementById('file-meta');
+        const copyBtn   = document.getElementById('copy-btn');
+
+        async function loadRawContent() {
+            if (!fileId || fileId === 'raw') {
+                contentEl.classList.remove('loading');
+                contentEl.classList.add('error');
+                contentEl.textContent = '-- Error: No file ID provided.';
+                fileMeta.textContent = 'No file ID';
+                return;
+            }
+
+            try {
+                const docRef  = doc(db, 'publishedFiles', fileId);
+                const docSnap = await getDoc(docRef);
+
+                if (!docSnap.exists()) {
+                    contentEl.classList.remove('loading');
+                    contentEl.classList.add('error');
+                    contentEl.textContent = `-- Error: File not found.\n-- The file may have been deleted or the link is invalid.\n-- ID: ${fileId}`;
+                    fileMeta.textContent = 'File not found';
+                    return;
+                }
+
+                const data = docSnap.data();
+
+                // Decode: base64 → XOR decrypt → UTF-8 text
+                const encBytes   = base64ToBytes(data.content);
+                const rawBytes   = xorDecrypt(encBytes);
+                const text       = new TextDecoder('utf-8').decode(rawBytes);
+
+                contentEl.classList.remove('loading');
+                contentEl.textContent = text;
+
+                const sizeKB = data.size ? (data.size / 1024).toFixed(1) + ' KB' : '';
+                fileMeta.textContent = `${data.name || fileId}${sizeKB ? ' · ' + sizeKB : ''}`;
+
+                copyBtn.style.display = 'block';
+                document.title = `ZEOX — ${data.name || fileId}`;
+
+                // Store for copy
+                window._rawText = text;
+
+            } catch (err) {
+                contentEl.classList.remove('loading');
+                contentEl.classList.add('error');
+                contentEl.textContent = `-- Error loading content:\n-- ${err.message}`;
+                fileMeta.textContent = 'Error';
+            }
+        }
+
+        loadRawContent();
+    </script>
+
+    <script>
+        function copyContent() {
+            const text = window._rawText || document.getElementById('content').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                const btn = document.getElementById('copy-btn');
+                btn.textContent = 'Copied!';
+                btn.classList.add('copied');
+                setTimeout(() => {
+                    btn.textContent = 'Copy';
+                    btn.classList.remove('copied');
+                }, 2000);
+            }).catch(() => {
+                // fallback
+                const ta = document.createElement('textarea');
+                ta.value = text;
+                document.body.appendChild(ta);
+                ta.select();
+                document.execCommand('copy');
+                document.body.removeChild(ta);
+            });
+        }
+    </script>
+</body>
+</html>
