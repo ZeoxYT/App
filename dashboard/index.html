@@ -14,6 +14,11 @@
   <script src="/app.js?v=3.0.0" defer></script>
   <script type="module" src="/auth-guard.js"></script>
 </head>
+  <input type="file" id="file-input" style="display:none;" />
+<script type="module">
+  import { initFileManager } from "./files.js";
+  initFileManager();
+</script>
 <body>
 
   <div class="shell" id="app-root">
